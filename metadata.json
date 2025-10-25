@@ -1,0 +1,5 @@
+{
+  "name": "StudyMate",
+  "description": "An AI-driven educational app tailored to the UK National Curriculum for England, focusing on Key Stages 1-5. It helps students master subjects by curating and synthesizing content from public reference materials.",
+  "requestFramePermissions": []
+}
