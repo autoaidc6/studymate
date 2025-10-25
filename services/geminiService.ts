@@ -48,12 +48,12 @@ export const generateStudyGuide = async (keyStage: KeyStage, topic: string): Pro
 
     Your response must be based on reputable, publicly available UK educational resources such as BBC Bitesize, the official National Curriculum documentation, Oak National Academy, and trusted open-source textbooks.
 
-    For video content, you must find and provide the video ID of a relevant, high-quality, publicly embeddable YouTube video from an authoritative educational channel (e.g., BBC, Khan Academy, official educational channels, FreeScienceLessons for GCSE). Do not generate new video content.
+    Crucially, for the VIDEO_GUIDE, you must provide the YouTube video ID for a video that is **explicitly licensed for embedding on third-party websites**. Do not select videos if their owner has disabled embedding. Channels like the BBC often have restrictions, so please prioritize videos from channels that consistently allow embedding (e.g., Khan Academy, FreeScienceLessons).
 
     Please provide a structured set of learning materials. The response MUST be a JSON object that strictly adheres to the provided schema. The materials should be diverse and include:
     1. PDF Notes: Generate comprehensive, well-structured notes on the topic suitable for a PDF document. Use markdown for headings, lists, and emphasis.
     2. Google Doc Content: Generate content for a student worksheet or activity in a Google Doc format. This should include a brief explanation and some questions or a task. Use markdown.
-    3. A Video Guide: Find a relevant YouTube video and provide its ID.
+    3. A Video Guide: Find a relevant, embeddable YouTube video and provide its ID.
     4. A concise summary of the topic.
 
     Ensure the content is tailored to the specified Key Stage's learning level.
