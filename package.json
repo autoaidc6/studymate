@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "vite preview --port $PORT --host 0.0.0.0"
+    "build": "npx vite build",
+    "preview": "npx vite preview",
+    "start": "npx vite preview --port $PORT --host 0.0.0.0"
   },
   "dependencies": {
     "@google/genai": "^1.27.0",
