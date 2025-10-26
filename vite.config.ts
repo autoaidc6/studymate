@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
-        preview.allowedHosts: 'studymate-ewb5.onrender.com'
+         allowedHosts: true
       },
       plugins: [react()],
       define: {
