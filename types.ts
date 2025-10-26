@@ -1,8 +1,14 @@
 
+export interface Year {
+  id: number;
+  name: string;
+}
+
 export interface KeyStage {
   id: number;
   name: string;
   description: string;
+  years: Year[];
 }
 
 export enum ResourceType {
@@ -12,6 +18,14 @@ export enum ResourceType {
   VIDEO_GUIDE = 'VIDEO_GUIDE',
   PDF_NOTES = 'PDF_NOTES',
   GOOGLE_DOC = 'GOOGLE_DOC',
+  FLASHCARDS = 'FLASHCARDS',
+  CONCEPT_MAP = 'CONCEPT_MAP',
+  CHEAT_SHEET = 'CHEAT_SHEET',
+}
+
+export interface Flashcard {
+  question: string;
+  answer: string;
 }
 
 export interface StudyMaterial {

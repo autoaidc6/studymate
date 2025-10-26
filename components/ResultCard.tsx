@@ -1,5 +1,6 @@
-import React from 'react';
-import { StudyMaterial, ResourceType } from '../types';
+import React, { useState, useEffect } from 'react';
+import { StudyMaterial, ResourceType, Flashcard } from '../types';
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface ResultCardProps {
   material: StudyMaterial;
@@ -19,50 +20,16 @@ const ResourceIcon: React.FC<{ type: ResourceType }> = ({ type }) => {
     case ResourceType.PDF_NOTES:
       return <svg xmlns="http://www.w3.org/2000/svg" className={baseClasses} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
     case ResourceType.GOOGLE_DOC:
-        return <svg xmlns="http://www.w3.org/2000/svg" className={baseClasses} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+      return <svg xmlns="http://www.w3.org/2000/svg" className={baseClasses} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+    case ResourceType.FLASHCARDS:
+      return <svg xmlns="http://www.w3.org/2000/svg" className={baseClasses} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>;
+    case ResourceType.CONCEPT_MAP:
+      return <svg xmlns="http://www.w3.org/2000/svg" className={baseClasses} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6.002l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>;
+    case ResourceType.CHEAT_SHEET:
+      return <svg xmlns="http://www.w3.org/2000/svg" className={baseClasses} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.586a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
     default:
       return null;
   }
-};
-
-const renderMarkdown = (text: string) => {
-  const blocks: {type: 'p' | 'h3' | 'h4' | 'ul', content: string[]}[] = [];
-  const lines = text.split('\n');
-
-  for (const line of lines) {
-    if (line.trim() === '') continue;
-
-    const lastBlock = blocks[blocks.length - 1];
-    const trimmedLine = line.trim();
-
-    if (trimmedLine.startsWith('# ')) {
-      blocks.push({ type: 'h3', content: [trimmedLine.substring(2)] });
-    } else if (trimmedLine.startsWith('## ')) {
-      blocks.push({ type: 'h4', content: [trimmedLine.substring(3)] });
-    } else if (trimmedLine.startsWith('- ')) {
-      const content = trimmedLine.substring(2);
-      if (lastBlock?.type === 'ul') {
-        lastBlock.content.push(content);
-      } else {
-        blocks.push({ type: 'ul', content: [content] });
-      }
-    } else {
-      blocks.push({ type: 'p', content: [line] });
-    }
-  }
-
-  return blocks.map((block, index) => {
-    switch(block.type) {
-      case 'h3': return <h3 key={index} className="text-lg font-semibold mt-4 mb-2 text-slate-800 dark:text-slate-100">{block.content[0]}</h3>;
-      case 'h4': return <h4 key={index} className="text-md font-semibold mt-3 mb-1 text-slate-700 dark:text-slate-200">{block.content[0]}</h4>;
-      case 'p': return <p key={index} className="text-slate-600 dark:text-slate-300">{block.content[0]}</p>;
-      case 'ul': return (
-        <ul key={index} className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-300">
-          {block.content.map((item, i) => <li key={i}>{item}</li>)}
-        </ul>
-      );
-    }
-  });
 };
 
 const getYouTubeId = (urlOrId: string): string | null => {
@@ -74,8 +41,92 @@ const getYouTubeId = (urlOrId: string): string | null => {
   return match ? match[1] : null;
 };
 
+const FlashcardPlayer: React.FC<{ content: string }> = ({ content }) => {
+  const [cards, setCards] = useState<Flashcard[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  useEffect(() => {
+    try {
+      const parsedCards = JSON.parse(content);
+      if (Array.isArray(parsedCards) && parsedCards.every(c => typeof c.question === 'string' && typeof c.answer === 'string')) {
+        setCards(parsedCards);
+      } else {
+        throw new Error("Invalid flashcard format.");
+      }
+    } catch (e) {
+      console.error("Failed to parse flashcards:", e);
+      setError("Could not load flashcards. The data might be malformed.");
+    }
+  }, [content]);
+
+  if (error) {
+    return <p className="text-sm text-red-600 dark:text-red-400">{error}</p>;
+  }
+
+  if (cards.length === 0) {
+    return null;
+  }
+
+  const currentCard = cards[currentIndex];
+
+  const handlePrev = () => {
+    setCurrentIndex(i => (i - 1 + cards.length) % cards.length);
+    setIsFlipped(false);
+  };
+
+  const handleNext = () => {
+    setCurrentIndex(i => (i + 1) % cards.length);
+    setIsFlipped(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div 
+        className="relative w-full h-48 cursor-pointer group"
+        onClick={() => setIsFlipped(!isFlipped)}
+        style={{ perspective: '1000px' }}
+        aria-live="polite"
+      >
+        <div 
+          className="absolute w-full h-full transition-transform duration-500"
+          style={{ transformStyle: 'preserve-3d', transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+        >
+          {/* Front */}
+          <div className="absolute w-full h-full flex items-center justify-center p-4 bg-slate-100 dark:bg-slate-700 rounded-lg shadow" style={{ backfaceVisibility: 'hidden' }}>
+            <div className="text-center">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Question</p>
+              <p className="text-slate-800 dark:text-slate-100">{currentCard.question}</p>
+            </div>
+          </div>
+          {/* Back */}
+          <div className="absolute w-full h-full flex items-center justify-center p-4 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg shadow" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+            <div className="text-center">
+              <p className="text-xs text-indigo-500 dark:text-indigo-400 mb-2">Answer</p>
+              <p className="text-indigo-800 dark:text-indigo-200">{currentCard.answer}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between">
+        <button onClick={handlePrev} aria-label="Previous card" className="px-4 py-2 text-sm font-medium rounded-md bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">Prev</button>
+        <p className="text-sm text-slate-500 dark:text-slate-400" aria-label={`Card ${currentIndex + 1} of ${cards.length}`}>{currentIndex + 1} / {cards.length}</p>
+        <button onClick={handleNext} aria-label="Next card" className="px-4 py-2 text-sm font-medium rounded-md bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">Next</button>
+      </div>
+    </div>
+  );
+};
+
 
 const ResultCard: React.FC<ResultCardProps> = ({ material }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [showPlayer, setShowPlayer] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  
+  const contentId = `card-content-${material.type}-${material.title.replace(/\W/g, '-')}`;
+
   const renderContent = () => {
     switch (material.type) {
       case ResourceType.SUMMARY:
@@ -103,18 +154,77 @@ const ResultCard: React.FC<ResultCardProps> = ({ material }) => {
         if (!videoId) {
           return <p className="text-sm text-red-600 dark:text-red-400">Could not find a valid YouTube video ID.</p>;
         }
-        return (
-          <div className="space-y-2">
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}> {/* 16:9 Aspect Ratio */}
-              <iframe
-                src={`https://www.youtube.com/embed/${videoId}`}
-                title={material.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute top-0 left-0 w-full h-full rounded-lg"
-              ></iframe>
+        
+        if (videoError) {
+           return (
+            <div className="space-y-2">
+              <div className="flex items-center justify-center h-48 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                <p className="text-sm text-center text-red-600 dark:text-red-400 px-4">
+                  Sorry, this video could not be loaded.<br/>It may no longer be available.
+                </p>
+              </div>
+              <a
+                href={`https://www.youtube.com/watch?v=${videoId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-indigo-500 dark:text-indigo-400 hover:underline inline-flex items-center transition-colors"
+              >
+                Try on YouTube
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              </a>
             </div>
+          );
+        }
+        
+        if (showPlayer) {
+            return (
+              <div className="space-y-2">
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}> {/* 16:9 Aspect Ratio */}
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                    title={material.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute top-0 left-0 w-full h-full rounded-lg"
+                  ></iframe>
+                </div>
+                <a
+                  href={`https://www.youtube.com/watch?v=${videoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-indigo-500 dark:text-indigo-400 hover:underline inline-flex items-center transition-colors"
+                >
+                  Watch on YouTube
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                </a>
+              </div>
+            );
+        }
+
+        return (
+           <div className="space-y-2">
+            <button
+              onClick={() => setShowPlayer(true)}
+              className="relative w-full block group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 rounded-lg"
+              aria-label={`Play video: ${material.title}`}
+            >
+              <img
+                src={`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`}
+                alt={`Thumbnail for ${material.title}`}
+                className="w-full rounded-lg shadow-md"
+                onError={() => {
+                  if (!showPlayer) setVideoError(true);
+                }}
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center rounded-lg">
+                <div className="bg-black bg-opacity-50 rounded-full p-3 transform group-hover:scale-110 transition-transform">
+                  <svg className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+            </button>
             <a
               href={`https://www.youtube.com/watch?v=${videoId}`}
               target="_blank"
@@ -127,7 +237,11 @@ const ResultCard: React.FC<ResultCardProps> = ({ material }) => {
           </div>
         );
       case ResourceType.PDF_NOTES:
-        return <div className="space-y-2">{renderMarkdown(material.content)}</div>;
+      case ResourceType.CHEAT_SHEET:
+      case ResourceType.CONCEPT_MAP:
+        return <MarkdownRenderer content={material.content} />;
+      case ResourceType.FLASHCARDS:
+        return <FlashcardPlayer content={material.content} />;
       case ResourceType.GOOGLE_DOC:
         const handleCreateDoc = () => {
           navigator.clipboard.writeText(material.content).catch(err => {
@@ -136,7 +250,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ material }) => {
         };
         return (
           <div className="space-y-4">
-            <div className="space-y-2">{renderMarkdown(material.content)}</div>
+            <MarkdownRenderer content={material.content} />
             <div>
               <a
                 href={`https://docs.google.com/document/create?title=${encodeURIComponent(material.title)}`}
@@ -160,16 +274,32 @@ const ResultCard: React.FC<ResultCardProps> = ({ material }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-lg">
       <div className="p-6">
-        <div className="flex items-center space-x-3">
-          <ResourceIcon type={material.type} />
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{material.title}</h3>
-        </div>
-        {material.source && <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Source: {material.source}</p>}
-        <div className="mt-4">
-          {renderContent()}
-        </div>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full flex items-center justify-between text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-800 focus-visible:ring-indigo-500 rounded-lg"
+          aria-expanded={isExpanded}
+          aria-controls={contentId}
+        >
+          <div className="flex items-center space-x-3">
+            <ResourceIcon type={material.type} />
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{material.title}</h3>
+          </div>
+          <svg
+            className={`h-5 w-5 text-slate-500 transform transition-transform duration-300 flex-shrink-0 ml-2 ${isExpanded ? 'rotate-180' : ''}`}
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {isExpanded && (
+          <div id={contentId} className="mt-4">
+             {material.source && <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Source: {material.source}</p>}
+            {renderContent()}
+          </div>
+        )}
       </div>
     </div>
   );
