@@ -14,21 +14,21 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[rehypeKatex]}
       components={{
-        h3: ({node, ...props}) => <h3 className="text-lg font-semibold mt-4 mb-2 text-slate-800 dark:text-slate-100" {...props} />,
-        h4: ({node, ...props}) => <h4 className="text-md font-semibold mt-3 mb-1 text-slate-700 dark:text-slate-200" {...props} />,
-        p: ({node, ...props}) => <p className="mb-2 text-slate-600 dark:text-slate-300 text-sm" {...props} />,
-        ul: ({node, ...props}) => <ul className="list-disc list-inside space-y-1 mb-2 text-slate-600 dark:text-slate-300 text-sm" {...props} />,
-        ol: ({node, ...props}) => <ol className="list-decimal list-inside space-y-1 mb-2 text-slate-600 dark:text-slate-300 text-sm" {...props} />,
+        h3: ({node, ...props}) => <h3 className="text-lg font-semibold mt-4 mb-2 text-slate-900 dark:text-slate-100 print-text-black" {...props} />,
+        h4: ({node, ...props}) => <h4 className="text-md font-semibold mt-3 mb-1 text-slate-800 dark:text-slate-200 print-text-black" {...props} />,
+        p: ({node, ...props}) => <p className="mb-4 text-slate-600 dark:text-slate-300 text-base leading-relaxed print-text-black" {...props} />,
+        ul: ({node, ...props}) => <ul className="list-disc list-inside space-y-2 mb-4 text-slate-600 dark:text-slate-300 text-base leading-relaxed print-text-black" {...props} />,
+        ol: ({node, ...props}) => <ol className="list-decimal list-inside space-y-2 mb-4 text-slate-600 dark:text-slate-300 text-base leading-relaxed print-text-black" {...props} />,
         li: ({node, ...props}) => <li className="pl-2" {...props} />,
-        strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
-        a: ({node, ...props}) => <a className="text-indigo-500 hover:underline" {...props} />,
+        strong: ({node, ...props}) => <strong className="font-semibold text-slate-800 dark:text-slate-200 print-text-black" {...props} />,
+        a: ({node, ...props}) => <a className="text-blue-500 dark:text-blue-400 hover:underline" {...props} />,
         code: ({node, inline, ...props}) => {
             const codeClass = inline 
-                ? "px-1 py-0.5 bg-slate-200 dark:bg-slate-700 rounded-sm text-sm" 
-                : "block p-2 bg-slate-100 dark:bg-slate-700 rounded-md overflow-x-auto text-sm";
+                ? "px-1.5 py-1 bg-slate-200 dark:bg-slate-700 rounded-md text-sm text-slate-800 dark:text-slate-200 print-bg-white print-text-black" 
+                : "block p-3 bg-slate-100 dark:bg-slate-900 rounded-md overflow-x-auto text-sm my-2 print-bg-white print-text-black";
             return <code className={codeClass} {...props} />;
         },
-        blockquote: ({node, ...props}) => <blockquote className="pl-4 border-l-4 border-slate-300 dark:border-slate-600 text-slate-500 italic my-2" {...props} />,
+        blockquote: ({node, ...props}) => <blockquote className="pl-4 border-l-4 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 italic my-4" {...props} />,
       }}
     >
       {content}

@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npx vite build",
-    "preview": "npx vite preview",
-    "start": "npx vite preview --port $PORT --host 0.0.0.0"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@google/genai": "^1.27.0",
@@ -16,7 +15,8 @@
     "react-markdown": "9.0.1",
     "remark-math": "6.0.0",
     "rehype-katex": "7.0.0",
-    "remark-gfm": "4.0.0"
+    "remark-gfm": "4.0.0",
+    "docx": "8.5.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

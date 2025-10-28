@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
-    <meta charset="UTF-to-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyMate - AI Learning Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,6 +12,38 @@
     <style>
       body {
         font-family: 'Poppins', sans-serif;
+      }
+      @media print {
+        body {
+          background-color: #fff !important;
+          color: #000 !important;
+        }
+        .no-print {
+          display: none !important;
+        }
+        main {
+          padding-top: 0 !important;
+          padding-bottom: 0 !important;
+        }
+        .print-container {
+          max-width: 100% !important;
+          padding: 0 !important;
+        }
+        .print-grid {
+          display: block !important;
+        }
+        .print-card {
+          box-shadow: none !important;
+          border: 1px solid #ccc !important;
+          break-inside: avoid !important;
+          margin-bottom: 1rem !important;
+        }
+        .print-text-black {
+          color: #000 !important;
+        }
+        .print-bg-white {
+           background-color: #fff !important;
+        }
       }
     </style>
   <script type="importmap">
@@ -24,12 +56,18 @@
     "react-markdown": "https://esm.sh/react-markdown@9.0.1",
     "remark-math": "https://esm.sh/remark-math@6.0.0",
     "rehype-katex": "https://esm.sh/rehype-katex@7.0.0",
-    "remark-gfm": "https://esm.sh/remark-gfm@4.0.0"
+    "remark-gfm": "https://esm.sh/remark-gfm@4.0.0",
+    "docx": "https://esm.sh/docx@8.5.0"
   }
 }
 </script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
 </head>
-  <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+  <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

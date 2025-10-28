@@ -1,4 +1,3 @@
-
 export interface Year {
   id: number;
   name: string;
@@ -37,4 +36,13 @@ export interface StudyMaterial {
 
 export interface StudyGuide {
   studyMaterials: StudyMaterial[];
+}
+
+export interface SavedStudyGuide {
+  id: string;
+  topic: string;
+  keyStageName: string;
+  yearName: string;
+  savedAt: string;
+  materials: StudyMaterial[];
 }
