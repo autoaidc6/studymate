@@ -40,9 +40,19 @@ export interface StudyGuide {
 
 export interface SavedStudyGuide {
   id: string;
+  userId: string;
   topic: string;
   keyStageName: string;
   yearName: string;
   savedAt: string;
   materials: StudyMaterial[];
+}
+
+export interface Feedback {
+  id: string;
+  userId: string;
+  topic: string;
+  materialTitle: string;
+  isPositive: boolean;
+  timestamp: string;
 }
