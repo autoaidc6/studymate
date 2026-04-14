@@ -9,8 +9,10 @@ import Footer from './components/Footer';
 import LoadingSpinner from './components/LoadingSpinner';
 import SavedGuidesModal from './components/SavedGuidesModal';
 import StudyGuideResults from './components/StudyGuideResults';
+import Learn from './src/components/learn/Learn';
 
 const App: React.FC = () => {
+  const [module, setModule] = useState<'GUIDE' | 'LEARN'>('GUIDE');
   const [view, setView] = useState<'INPUT' | 'RESULTS'>('INPUT');
   const [selectedKeyStage, setSelectedKeyStage] = useState<KeyStage | null>(null);
   const [selectedYear, setSelectedYear] = useState<Year | null>(null);
@@ -129,10 +131,16 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header onShowSavedGuides={() => setShowSavedGuides(true)} />
+      <Header 
+        onShowSavedGuides={() => setShowSavedGuides(true)} 
+        activeModule={module}
+        onModuleChange={setModule}
+      />
 
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {view === 'INPUT' ? (
+        {module === 'LEARN' ? (
+          <Learn />
+        ) : view === 'INPUT' ? (
           <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 no-print">
             <div className="space-y-8">
               <div>

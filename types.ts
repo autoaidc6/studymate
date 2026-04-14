@@ -20,6 +20,72 @@ export enum ResourceType {
   FLASHCARDS = 'FLASHCARDS',
   CONCEPT_MAP = 'CONCEPT_MAP',
   CHEAT_SHEET = 'CHEAT_SHEET',
+  WORKSHEET = 'WORKSHEET',
+  QUIZ = 'QUIZ',
+}
+
+export type UserRole = 'parent' | 'student' | 'admin';
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  role: UserRole;
+  name: string;
+  username?: string;
+  parentUid?: string;
+  yearGroup?: string;
+  birthMonth?: number;
+  birthYear?: number;
+  school?: string;
+  recommenderEnabled?: boolean;
+  selfAssignEnabled?: boolean;
+  setupToken?: string;
+  points?: number;
+  subscriptionStatus?: 'free' | 'active' | 'canceled';
+  createdAt: string;
+}
+
+export interface Activity {
+  id: string;
+  title: string;
+  subject: 'Maths' | 'English' | 'Science';
+  yearGroup: string;
+  type: string;
+  content: any;
+  pointsValue: number;
+  createdAt: string;
+}
+
+export interface Score {
+  id: string;
+  userUid: string;
+  activityId: string;
+  score: number;
+  completedAt: string;
+  feedback?: string;
+}
+
+export interface Reward {
+  id: string;
+  parentUid: string;
+  studentUid: string;
+  category: string;
+  description: string;
+  websiteLink?: string;
+  pointsRequired: number;
+  status: 'in-progress' | 'achieved' | 'claimed';
+  createdAt: string;
+}
+
+export interface Assignment {
+  id: string;
+  parentUid: string;
+  studentUid: string;
+  activityId: string;
+  activityTitle: string;
+  subject: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  assignedAt: string;
 }
 
 export interface Flashcard {

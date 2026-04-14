@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application (Parent, Student, or Admin).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "role": { "type": "string", "enum": ["parent", "student", "admin"], "description": "User role" },
+        "name": { "type": "string", "description": "Full name" },
+        "username": { "type": "string", "description": "Unique student username" },
+        "parentUid": { "type": "string", "description": "UID of the parent (for student accounts)" },
+        "yearGroup": { "type": "string", "description": "School year group (e.g., Year 1, GCSE)" },
+        "birthMonth": { "type": "number", "description": "Birth month (1-12)" },
+        "birthYear": { "type": "number", "description": "Birth year" },
+        "school": { "type": "string", "description": "Connected school name" },
+        "recommenderEnabled": { "type": "boolean", "description": "Whether AI recommender is enabled" },
+        "selfAssignEnabled": { "type": "boolean", "description": "Whether student can self-assign activities" },
+        "setupToken": { "type": "string", "description": "Token for student to finish setup" },
+        "points": { "type": "number", "description": "Total points earned by the student" },
+        "subscriptionStatus": { "type": "string", "enum": ["free", "active", "canceled"], "description": "Subscription status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "A learning activity or worksheet aligned with the National Curriculum.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique activity ID" },
+        "title": { "type": "string", "description": "Activity title" },
+        "subject": { "type": "string", "enum": ["Maths", "English", "Science"], "description": "Subject area" },
+        "yearGroup": { "type": "string", "description": "Target year group" },
+        "type": { "type": "string", "description": "Activity type (e.g., Worksheet, Quiz)" },
+        "content": { "type": "object", "description": "JSON content of the activity (questions, answers)" },
+        "pointsValue": { "type": "number", "description": "Points awarded for completion" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "subject", "yearGroup"]
+    },
+    "Score": {
+      "title": "Score",
+      "description": "A record of a student's performance on an activity.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique score ID" },
+        "userUid": { "type": "string", "description": "UID of the student" },
+        "activityId": { "type": "string", "description": "ID of the activity" },
+        "score": { "type": "number", "description": "Percentage score achieved" },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "feedback": { "type": "string", "description": "AI-generated or manual feedback" }
+      },
+      "required": ["id", "userUid", "activityId", "score"]
+    },
+    "Reward": {
+      "title": "Reward",
+      "description": "A reward set by a parent for their child.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique reward ID" },
+        "parentUid": { "type": "string", "description": "UID of the parent" },
+        "studentUid": { "type": "string", "description": "UID of the student" },
+        "category": { "type": "string", "description": "Reward category (e.g., Money, Gaming time)" },
+        "description": { "type": "string", "description": "Description of the reward" },
+        "websiteLink": { "type": "string", "description": "Optional link to a product" },
+        "pointsRequired": { "type": "number", "description": "Points needed to unlock" },
+        "status": { "type": "string", "enum": ["in-progress", "achieved", "claimed"], "description": "Current status" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "parentUid", "studentUid"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "An activity assigned to a student by a parent.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique assignment ID" },
+        "parentUid": { "type": "string", "description": "UID of the parent" },
+        "studentUid": { "type": "string", "description": "UID of the student" },
+        "activityId": { "type": "string", "description": "ID of the assigned activity" },
+        "activityTitle": { "type": "string", "description": "Title of the activity" },
+        "subject": { "type": "string", "description": "Subject of the activity" },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "completed"], "description": "Current status" },
+        "assignedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "parentUid", "studentUid", "activityId"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": { "schema": "User", "description": "User profiles" },
+    "/activities/{id}": { "schema": "Activity", "description": "Learning activities" },
+    "/scores/{id}": { "schema": "Score", "description": "Activity results" },
+    "/rewards/{id}": { "schema": "Reward", "description": "Student rewards" },
+    "/assignments/{id}": { "schema": "Assignment", "description": "Parent-assigned activities" }
+  }
+}
